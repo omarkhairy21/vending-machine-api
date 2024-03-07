@@ -3,40 +3,65 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
+  Put,
   Delete,
+  Param,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { Product } from './entities/product.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/user/entities/user.entity';
+import { CustomRequest } from 'src/types';
 
-@Controller('product')
+@Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
-  }
-
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  async findAll(): Promise<Product[]> {
+    return await this.productService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<Product> {
+    return await this.productService.findOne(parseInt(id));
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+  @Post()
+  // @UseGuards(AuthGuard) // Only seller can create products
+  async create(
+    @Body() product: Product,
+    @Req() request: CustomRequest,
+  ): Promise<Product> {
+    const user = request.user;
+    product.sellerId = user.id;
+    return await this.productService.create(product);
+  }
+
+  @Put(':id')
+  // @UseGuards(AuthGuard) // Only seller can update products
+  async update(
+    @Param('id') id: string,
+    @Body() product: Product,
+    @Req() request: CustomRequest,
+  ): Promise<Product> {
+    const user = request.user;
+    const currentProduct = await this.productService.findOne(parseInt(id));
+    if (currentProduct.sellerId !== user.id) {
+      throw new Error('Unauthorized access');
+    }
+    return await this.productService.update(parseInt(id), product);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
+  // @UseGuards(AuthGuard) // Only seller can delete products
+  async delete(
+    @Param('id') id: string,
+    @Req() request: CustomRequest,
+  ): Promise<void> {
+    const user = request.user;
+    await this.productService.delete(parseInt(id), user.id);
   }
 }

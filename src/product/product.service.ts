@@ -1,26 +1,56 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Product } from './entities/product.entity';
+import { UserService } from '../user/user.service';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ProductService {
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+    private readonly userService: UserService,
+  ) {}
+
+  async findAll(): Promise<Product[]> {
+    return await this.productRepository.find({ relations: ['seller'] });
   }
 
-  findAll() {
-    return `This action returns all product`;
+  async findOne(id: number): Promise<Product> {
+    return await this.productRepository.findOne({
+      where: { id },
+      relations: ['seller'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async create(product: Product): Promise<Product> {
+    const seller = await this.userService.findOne(product.sellerId);
+    if (!seller) {
+      throw new Error('Seller not found');
+    }
+    product.seller = seller;
+    return await this.productRepository.save(product);
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, product: Product): Promise<Product> {
+    await this.productRepository.update(id, product);
+    return await this.productRepository.findOne({
+      where: { id },
+      relations: ['seller'],
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async delete(id: number, userId: User['id']): Promise<void> {
+    const product = await this.productRepository.findOne({
+      where: { id },
+      relations: ['seller'],
+    });
+
+    if (product.seller.id !== userId) {
+      throw new Error('Unauthorized access');
+    }
+
+    await this.productRepository.delete(id);
   }
 }
