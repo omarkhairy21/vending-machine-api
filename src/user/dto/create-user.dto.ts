@@ -8,12 +8,19 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @ApiProperty()
+  @ApiProperty({
+    required: true,
+    description: 'The username of the user',
+  })
   @IsNotEmpty()
   @IsString()
   username: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    minLength: 8,
+    required: true,
+    description: 'Password must be at least 8 characters',
+  })
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
@@ -24,7 +31,10 @@ export class CreateUserDto {
   @IsNumber()
   deposit: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    required: true,
+    description: 'The role of user, buyer or seller',
+  })
   @IsNotEmpty()
   @IsString()
   role: string;

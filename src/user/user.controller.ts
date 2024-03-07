@@ -8,12 +8,14 @@ import {
   Param,
   UseGuards,
   Req,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CustomRequest } from 'src/types';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -26,7 +28,9 @@ export class UserController {
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<User> {
-    return await this.userService.findOne(parseInt(id));
+    const user = await this.userService.findOne(parseInt(id));
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
   @Post()
@@ -35,8 +39,11 @@ export class UserController {
   }
 
   @Put(':id')
-  // @UseGuards(AuthGuard) // Apply auth guard for update and delete
-  async update(@Param('id') id: string, @Body() user: User): Promise<User> {
+  @UseGuards(AuthGuard('jwt'))
+  async update(
+    @Param('id') id: string,
+    @Body() user: UpdateUserDto,
+  ): Promise<User> {
     return await this.userService.update(parseInt(id), user);
   }
 
