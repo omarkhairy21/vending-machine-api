@@ -39,7 +39,7 @@ export class UserController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('local'))
   async update(
     @Param('id') id: string,
     @Body() user: UpdateUserDto,
