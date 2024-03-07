@@ -3,7 +3,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  BeforeInsert,
+  // BeforeInsert,
   OneToMany,
 } from 'typeorm';
 
@@ -27,8 +27,8 @@ export class User {
   @OneToMany(() => Product, (product) => product.seller)
   products: Product[]; // Add this line
 
-  @BeforeInsert()
-  hashPassword() {
-    // Hash password before inserting a user to the database
-  }
+  // @BeforeInsert()
+  // hashPassword() {
+  //   // Hash password before inserting a user to the database
+  // }
 }
