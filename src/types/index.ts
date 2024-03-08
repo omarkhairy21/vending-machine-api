@@ -6,3 +6,9 @@ export interface CustomRequest extends Request {
     role: string;
   };
 }
+
+export interface TokenPayload {
+  username: string;
+  userId: number;
+  role: string;
+}

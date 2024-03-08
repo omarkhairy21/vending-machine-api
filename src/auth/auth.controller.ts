@@ -1,7 +1,6 @@
 import {
   Controller,
   Post,
-  Body,
   UseGuards,
   NotFoundException,
   Req,
@@ -34,6 +33,12 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('auth/login')
   async login(@Req() req) {
-    return req.user;
+    const user = req.user;
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    //  generate the JWT token
+    const token = this.authService.generateJwtToken(user);
+    return { token };
   }
 }
