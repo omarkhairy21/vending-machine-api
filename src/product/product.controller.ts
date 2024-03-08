@@ -14,6 +14,8 @@ import { Product } from './entities/product.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/entities/user.entity';
 import { CustomRequest } from 'src/types';
+import { CreateProductDto } from './dto/create-product.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductController {
@@ -30,9 +32,10 @@ export class ProductController {
   }
 
   @Post()
-  // @UseGuards(AuthGuard) // Only seller can create products
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('JWT')
   async create(
-    @Body() product: Product,
+    @Body() product: CreateProductDto,
     @Req() request: CustomRequest,
   ): Promise<Product> {
     const user = request.user;

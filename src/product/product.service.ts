@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { UserService } from '../user/user.service';
 import { User } from 'src/user/entities/user.entity';
+import { CreateProductDto } from './dto/create-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -24,12 +25,12 @@ export class ProductService {
     });
   }
 
-  async create(product: Product): Promise<Product> {
+  async create(product: CreateProductDto): Promise<Product> {
     const seller = await this.userService.findOne(product.sellerId);
     if (!seller) {
       throw new Error('Seller not found');
     }
-    product.seller = seller;
+    product.sellerId = seller.id;
     return await this.productRepository.save(product);
   }
 

@@ -1,5 +1,6 @@
-import { Controller, Post, Put, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Put, Param, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from 'src/decorators/currentUser.decorator';
 import { Product } from 'src/product/entities/product.entity';
 import { ProductService } from 'src/product/product.service';
@@ -14,11 +15,14 @@ export class VendingController {
   ) {}
 
   @Post('deposit/:amount')
-  async deposit(@Param('amount') amount: string, @Req() req): Promise<User> {
-    const user = req.user;
+  @UseGuards(AuthGuard('jwt'))
+  async deposit(
+    @Param('amount') amount: string,
+    @CurrentUser() user,
+  ): Promise<User> {
     const validCoins = [5, 10, 20, 50, 100];
     if (!validCoins.includes(parseInt(amount))) {
-      throw new Error('Invalid coin amount');
+      throw new HttpException('Invalid coin', HttpStatus.BAD_REQUEST);
     }
     user.deposit += parseInt(amount);
     await this.userService.update(user.id, user);
@@ -26,7 +30,7 @@ export class VendingController {
   }
 
   @Post('buy/:productId/:amount')
-  @UseGuards(AuthGuard('local')) // Only buyer can buy
+  @UseGuards(AuthGuard('jwt')) // Only buyer can buy
   async buy(
     @Param('productId') productId: string,
     @Param('amount') amount: string,
@@ -36,11 +40,11 @@ export class VendingController {
     const productCost = product.cost * parseInt(amount);
 
     if (productCost > user.deposit) {
-      throw new Error('Insufficient funds');
+      throw new HttpException('Insufficient funds', HttpStatus.BAD_REQUEST);
     }
 
     if (product.amountAvailable < parseInt(amount)) {
-      throw new Error('Not enough products available');
+      throw new HttpException('Insufficient stock', HttpStatus.BAD_REQUEST);
     }
 
     // Update product and user

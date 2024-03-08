@@ -13,6 +13,8 @@ async function bootstrap() {
     .setDescription('Cending machine API')
     .setVersion('1.0')
     .addTag('vending-machine')
+    .addSecurityRequirements('bearer')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

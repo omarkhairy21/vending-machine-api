@@ -23,6 +23,7 @@ export class AuthService {
   async validateUserFromJwt(payload: TokenPayload): Promise<User | null> {
     const user = await this.userService.findOneByUsername(payload.username);
     if (!user) return null;
+    return user;
   }
 
   // generate the JWT token
