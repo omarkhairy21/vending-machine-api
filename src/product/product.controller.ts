@@ -12,8 +12,7 @@ import {
 import { ProductService } from './product.service';
 import { Product } from './entities/product.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from 'src/user/entities/user.entity';
-import { CustomRequest } from 'src/types';
+import { CustomRequest } from '@/types';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 

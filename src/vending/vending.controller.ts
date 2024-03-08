@@ -1,17 +1,26 @@
-import { Controller, Post, Put, Param, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Put,
+  Param,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth } from '@nestjs/swagger';
-import { CurrentUser } from 'src/decorators/currentUser.decorator';
-import { Product } from 'src/product/entities/product.entity';
-import { ProductService } from 'src/product/product.service';
-import { User } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { CurrentUser } from '@/decorators/currentUser.decorator';
+import { Product } from '@/product/entities/product.entity';
+import { ProductService } from '@/product/product.service';
+import { User } from '@/user/entities/user.entity';
+import { UserService } from '@/user/user.service';
+import { VendingService } from './vending.service';
 
 @Controller('vending')
 export class VendingController {
   constructor(
     private readonly userService: UserService,
     private readonly productService: ProductService,
+    private readonly vendingService: VendingService,
   ) {}
 
   @Post('deposit/:amount')
@@ -54,9 +63,7 @@ export class VendingController {
     await this.userService.update(user.id, user);
 
     // Calculate and return change
-    const change = this.calculateChange(user.deposit);
-    user.deposit = 0;
-    await this.userService.update(user.id, user);
+    const change = this.vendingService.calculateChange(user.deposit);
 
     return {
       totalSpent: productCost,
@@ -71,18 +78,5 @@ export class VendingController {
     user.deposit = 0;
     await this.userService.update(user.id, user);
     return user;
-  }
-
-  // Helper function to calculate change
-  private calculateChange(amount: number): number[] {
-    const coins = [100, 50, 20, 10, 5];
-    const change = [];
-    for (const coin of coins) {
-      while (amount >= coin) {
-        amount -= coin;
-        change.push(coin);
-      }
-    }
-    return change;
   }
 }
