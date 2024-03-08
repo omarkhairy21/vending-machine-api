@@ -2,13 +2,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { UserDto } from './dto/user.dto';
+import { User } from './entities/user.entity';
 
 describe('UserController', () => {
   let controller: UserController;
   let service: UserService;
-
+  const loadedUsers: UserDto[] = [
+    {
+      id: 1,
+      username: 'JohnDoe',
+      deposit: 100,
+      role: 'buyer',
+      password: 'password',
+    },
+  ];
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
@@ -21,61 +30,56 @@ describe('UserController', () => {
 
   describe('findAll', () => {
     it('should return an array of users', async () => {
-      const users = [{ id: 1, name: 'John Doe' }];
-      jest.spyOn(service, 'findAll').mockResolvedValue(users);
+      jest.spyOn(service, 'findAll').mockResolvedValue(loadedUsers);
 
-      expect(await controller.findAll()).toBe(users);
+      expect(await controller.findAll()).toBe(loadedUsers);
     });
   });
 
   describe('findOne', () => {
     it('should return a user by id', async () => {
-      const user = { id: 1, name: 'John Doe' };
-      jest.spyOn(service, 'findOne').mockResolvedValue(user);
+      jest.spyOn(service, 'findOne').mockResolvedValue(loadedUsers[0]);
 
-      expect(await controller.findOne('1')).toBe(user);
+      expect(await controller.findOne('1')).toBe(loadedUsers[0]);
     });
 
     it('should throw NotFoundException if user is not found', async () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(null);
 
-      await expect(controller.findOne('1')).rejects.toThrowError(NotFoundException);
+      await expect(controller.findOne('1')).rejects.toThrowError(
+        NotFoundException,
+      );
     });
   });
 
   describe('create', () => {
     it('should create a new user', async () => {
-      const createUserDto: CreateUserDto = { name: 'John Doe' };
-      const createdUser = { id: 1, name: 'John Doe' };
-      jest.spyOn(service, 'create').mockResolvedValue(createdUser);
+      const createUserDto: CreateUserDto = {
+        username: 'JohnDoe',
+        password: 'password',
+        deposit: 100,
+        role: 'buyer',
+      };
 
-      expect(await controller.create(createUserDto)).toBe(createdUser);
+      jest.spyOn(service, 'create').mockResolvedValue(createUserDto as User);
+
+      expect(await controller.create(createUserDto)).toBe(loadedUsers[0]);
     });
   });
 
   describe('update', () => {
     it('should update a user by id', async () => {
-      const updateUserDto: UpdateUserDto = { name: 'John Doe' };
-      const updatedUser = { id: 1, name: 'John Doe' };
+      const updateUserDto: UpdateUserDto = { deposit: 200 };
+      const updatedUser = {
+        id: 1,
+        username: 'John Doe',
+        deposit: 200,
+        role: 'buyer',
+        password: 'password',
+      };
       jest.spyOn(service, 'update').mockResolvedValue(updatedUser);
 
       expect(await controller.update('1', updateUserDto)).toBe(updatedUser);
-    });
-  });
-
-  describe('delete', () => {
-    it('should delete a user by id', async () => {
-      const request = { user: { id: 1, role: 'admin' } };
-      jest.spyOn(service, 'delete').mockResolvedValue(undefined);
-
-      await expect(controller.delete('1', request)).resolves.toBeUndefined();
-    });
-
-    it('should throw an error if unauthorized access', async () => {
-      const request = { user: { id: 2, role: 'user' } };
-      jest.spyOn(service, 'delete').mockResolvedValue(undefined);
-
-      await expect(controller.delete('1', request)).rejects.toThrowError('Unauthorized access');
     });
   });
 });

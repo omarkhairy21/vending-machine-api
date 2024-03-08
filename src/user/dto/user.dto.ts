@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
@@ -39,3 +39,10 @@ export class CreateUserDto {
   @IsString()
   role: string;
 }
+
+export class UserDto extends CreateUserDto {
+  @ApiProperty()
+  id: number;
+}
+
+export class UpdateUserDto extends PartialType(CreateUserDto) {}

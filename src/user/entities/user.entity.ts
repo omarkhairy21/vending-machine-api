@@ -5,6 +5,7 @@ import {
   Column,
   // BeforeInsert,
   OneToMany,
+  AfterLoad,
 } from 'typeorm';
 
 @Entity()
@@ -27,8 +28,8 @@ export class User {
   @OneToMany(() => Product, (product) => product.seller)
   products: Product[]; // Add this line
 
-  // @BeforeInsert()
-  // hashPassword() {
-  //   // Hash password before inserting a user to the database
-  // }
+  @AfterLoad()
+  private removePassword() {
+    delete this.password;
+  }
 }

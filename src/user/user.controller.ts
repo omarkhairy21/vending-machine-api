@@ -7,27 +7,26 @@ import {
   Delete,
   Param,
   UseGuards,
-  Req,
   NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateUserDto } from './dto/create-user.dto';
-import { CustomRequest } from '@/types';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto, UserDto } from './dto/user.dto';
+import { UpdateUserDto } from './dto/user.dto';
+import { CurrentUser } from '@/decorators/currentUser.decorator';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<UserDto[]> {
     return await this.userService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User> {
+  async findOne(@Param('id') id: string): Promise<UserDto> {
     const user = await this.userService.findOne(parseInt(id));
     if (!user) throw new NotFoundException('User not found');
     return user;
@@ -39,21 +38,20 @@ export class UserController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(AuthGuard('jwt'))
   async update(
     @Param('id') id: string,
     @Body() user: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<UserDto> {
     return await this.userService.update(parseInt(id), user);
   }
 
   @Delete(':id')
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   async delete(
     @Param('id') id: string,
-    @Req() request: CustomRequest,
+    @CurrentUser() user: UserDto,
   ): Promise<void> {
-    const user = request.user;
     // Check if the deleting user is the same user or an admin
     if (user.role !== 'admin' && user.id !== parseInt(id)) {
       throw new Error('Unauthorized access');
