@@ -3,6 +3,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { UserDto } from './dto/user.dto';
+import { Logger } from '@nestjs/common';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -32,6 +33,7 @@ describe('UserController', () => {
               .mockResolvedValue({ ...loadedUsers[0], deposit: 200 }),
           },
         },
+        Logger,
       ],
     }).compile();
 

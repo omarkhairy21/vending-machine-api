@@ -5,7 +5,7 @@ import { UserService } from '@/user/user.service';
 import { ProductService } from '@/product/product.service';
 import { User } from '@/user/entities/user.entity';
 import { Product } from '@/product/entities/product.entity';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 describe('VendingController', () => {
@@ -17,7 +17,7 @@ describe('VendingController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [VendingController],
-      providers: [VendingService, UserService, ProductService],
+      providers: [VendingService, UserService, ProductService, Logger],
       imports: [
         TypeOrmModule.forRoot({
           type: 'sqlite',
