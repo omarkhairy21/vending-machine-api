@@ -1,0 +1,83 @@
+# flyctl launch added from .gitignore
+# compiled output
+dist
+node_modules
+build
+
+# Logs
+**\logs
+**\*.log
+**\npm-debug.log*
+**\pnpm-debug.log*
+**\yarn-debug.log*
+**\yarn-error.log*
+**\lerna-debug.log*
+
+# OS
+**\.DS_Store
+
+# Tests
+coverage
+.nyc_output
+
+# IDEs and editors
+.idea
+**\.project
+**\.classpath
+**\.c9
+**\*.launch
+**\.settings
+**\*.sublime-workspace
+
+# IDE - VSCode
+**\.vscode\*
+!**\.vscode\settings.json
+!**\.vscode\tasks.json
+!**\.vscode\launch.json
+!**\.vscode\extensions.json
+
+# dotenv environment variable files
+**\.env
+**\.env.development.local
+**\.env.test.local
+**\.env.production.local
+**\.env.local
+
+# temp directory
+**\.temp
+**\.tmp
+
+# Runtime data
+**\pids
+**\*.pid
+**\*.seed
+**\*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+**\report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+**\vending-machine.db
+
+# flyctl launch added from node_modules\minipass-sized\.gitignore
+# ignore most things, include some others
+node_modules\minipass-sized\*
+node_modules\minipass-sized\.*
+
+!node_modules\minipass-sized\**\bin
+!node_modules\minipass-sized\**\lib
+!node_modules\minipass-sized\**\docs
+!node_modules\minipass-sized\**\package.json
+!node_modules\minipass-sized\**\package-lock.json
+!node_modules\minipass-sized\**\README.md
+!node_modules\minipass-sized\**\CONTRIBUTING.md
+!node_modules\minipass-sized\**\LICENSE
+!node_modules\minipass-sized\**\CHANGELOG.md
+!node_modules\minipass-sized\**\example
+!node_modules\minipass-sized\**\scripts
+!node_modules\minipass-sized\**\tap-snapshots
+!node_modules\minipass-sized\**\test
+!node_modules\minipass-sized\**\.travis.yml
+!node_modules\minipass-sized\**\.gitignore
+!node_modules\minipass-sized\**\.gitattributes
+!node_modules\minipass-sized\**\coverage-map.js
+!node_modules\minipass-sized\**\index.js
+fly.toml

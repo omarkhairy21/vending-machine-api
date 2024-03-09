@@ -1,12 +1,5 @@
 import { Product } from '@/product/entities/product.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  // BeforeInsert,
-  OneToMany,
-  AfterLoad,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
@@ -27,9 +20,4 @@ export class User {
 
   @OneToMany(() => Product, (product) => product.seller)
   products: Product[]; // Add this line
-
-  @AfterLoad()
-  private removePassword() {
-    delete this.password;
-  }
 }

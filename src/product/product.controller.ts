@@ -15,6 +15,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { CustomRequest } from '@/types';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { RolesGuard } from '@/auth/role.guard';
+import { Roles } from '@/decorators/roles.decorator';
 
 @Controller('products')
 export class ProductController {
@@ -31,7 +33,8 @@ export class ProductController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('seller')
   @ApiBearerAuth('JWT')
   async create(
     @Body() product: CreateProductDto,
@@ -43,7 +46,8 @@ export class ProductController {
   }
 
   @Put(':id')
-  // @UseGuards(AuthGuard) // Only seller can update products
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('seller')
   async update(
     @Param('id') id: string,
     @Body() product: Product,
@@ -58,7 +62,8 @@ export class ProductController {
   }
 
   @Delete(':id')
-  // @UseGuards(AuthGuard) // Only seller can delete products
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('seller')
   async delete(
     @Param('id') id: string,
     @Req() request: CustomRequest,

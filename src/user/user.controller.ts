@@ -8,6 +8,8 @@ import {
   Param,
   UseGuards,
   NotFoundException,
+  Logger,
+  HttpException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
@@ -18,16 +20,23 @@ import { CurrentUser } from '@/decorators/currentUser.decorator';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly logger: Logger,
+  ) {}
 
   @Get()
   async findAll(): Promise<UserDto[]> {
-    return await this.userService.findAll();
+    const users = await this.userService.findAll();
+    this.logger.log('Fetching all users', JSON.stringify(users));
+    return users;
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserDto> {
+    this.logger.log('Fetching user with id: ' + id);
     const user = await this.userService.findOne(parseInt(id));
+    this.logger.log('User found: ' + JSON.stringify(user));
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
@@ -43,7 +52,10 @@ export class UserController {
     @Param('id') id: string,
     @Body() user: UpdateUserDto,
   ): Promise<UserDto> {
-    return await this.userService.update(parseInt(id), user);
+    this.logger.log('Updating user with id: ' + id);
+    const updatedUser = this.userService.update(parseInt(id), user);
+    this.logger.log('User updated: ' + updatedUser);
+    return updatedUser;
   }
 
   @Delete(':id')
@@ -52,9 +64,9 @@ export class UserController {
     @Param('id') id: string,
     @CurrentUser() user: UserDto,
   ): Promise<void> {
-    // Check if the deleting user is the same user or an admin
-    if (user.role !== 'admin' && user.id !== parseInt(id)) {
-      throw new Error('Unauthorized access');
+    this.logger.log('Deleting user with id: ' + id);
+    if (user.id !== parseInt(id)) {
+      throw new HttpException('Unauthorized access', 401);
     }
     await this.userService.delete(parseInt(id));
   }
