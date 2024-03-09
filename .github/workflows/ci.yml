@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+      branches:
+       - master
+      
+
+jobs:
+  deploy-worker:
+      runs-on: ubuntu-latest
+      name: Deploy
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3
+          with:
+            node-version: '18.12.0'
+            registry-url: 'https://registry.npmjs.org'
+        - name: Install  yarn
+          run: npm install -g yarn
+        - name: Install dependencies
+          run: yarn install
+        - name: Build
+          run: yarn build
+        - name: Test
+          run: yarn test
+        
