@@ -15,9 +15,31 @@ This is a simple Vending Machine API that allows users to buy products and get c
 
 ## Api Documentation
 
-Docs can be found at http://localhost:3000/api
+Docs can be found at https://vending-machine-api.fly.dev/api
 
-## Installation
+Note: On API I assumed endpoints get products and users allowed to be public, but in a real scenario, they should be private.
+
+## Authentication
+
+1. You need to create a user first using endpoint POST /users.
+2. Use endpoint POST /auth/login to get a token.
+3. Add the token on swagger Authorize button.
+
+## Installation with Docker
+
+1. Build the image
+
+```bash
+docker build -f "Dockerfile.dev" -t vendingmachineapi-dev:latest "." 
+```
+
+2. Run the container
+
+```bash
+docker run -p 3000:3000 vendingmachineapi-dev:latest
+```
+
+## Installation without Docker
 
 ```bash
 $ yarn install
