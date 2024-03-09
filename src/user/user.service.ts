@@ -27,9 +27,14 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async update(id: number, user: UpdateUserDto): Promise<UserDto> {
-    await this.userRepository.update(id, user);
-    return await this.userRepository.findOne({ where: { id } });
+  async update(
+    id: number,
+    userPropsToUpdates: UpdateUserDto,
+  ): Promise<UserDto> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) throw new Error('User not found');
+    await this.userRepository.update(id, userPropsToUpdates);
+    return { ...user, ...userPropsToUpdates };
   }
 
   async delete(id: number): Promise<void> {

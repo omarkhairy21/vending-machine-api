@@ -6,6 +6,7 @@ import { ProductService } from '@/product/product.service';
 import { User } from '@/user/entities/user.entity';
 import { Product } from '@/product/entities/product.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 describe('VendingController', () => {
   let controller: VendingController;
@@ -17,6 +18,15 @@ describe('VendingController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [VendingController],
       providers: [VendingService, UserService, ProductService],
+      imports: [
+        TypeOrmModule.forRoot({
+          type: 'sqlite',
+          database: ':memory:',
+          entities: [User, Product],
+          synchronize: true,
+        }),
+        TypeOrmModule.forFeature([User, Product]),
+      ],
     }).compile();
 
     controller = module.get<VendingController>(VendingController);
@@ -109,13 +119,13 @@ describe('VendingController', () => {
 
     it('should throw an error for insufficient stock', async () => {
       const productId = '1';
-      const amount = '10';
+      const amount = '2';
       const user = { id: 1, deposit: 100 };
       const product = {
         id: 1,
         productName: 'Product 1',
         cost: 50,
-        amountAvailable: 5,
+        amountAvailable: 1,
       };
 
       jest

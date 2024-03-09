@@ -46,9 +46,9 @@ export class VendingController {
     @CurrentUser() user: User,
   ): Promise<{ totalSpent: number; purchased: Product[]; change: number[] }> {
     const product = await this.productService.findOne(parseInt(productId));
-    const productCost = product.cost * parseInt(amount);
+    const totalProductCost = product.cost * parseInt(amount);
 
-    if (productCost > user.deposit) {
+    if (totalProductCost > user.deposit) {
       throw new HttpException('Insufficient funds', HttpStatus.BAD_REQUEST);
     }
 
@@ -58,7 +58,7 @@ export class VendingController {
 
     // Update product and user
     product.amountAvailable -= parseInt(amount);
-    user.deposit -= productCost;
+    user.deposit -= totalProductCost;
     await this.productService.update(product.id, product);
     await this.userService.update(user.id, user);
 
@@ -66,7 +66,7 @@ export class VendingController {
     const change = this.vendingService.calculateChange(user.deposit);
 
     return {
-      totalSpent: productCost,
+      totalSpent: totalProductCost,
       purchased: [product],
       change,
     };
